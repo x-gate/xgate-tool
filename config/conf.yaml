@@ -1,0 +1,19 @@
+name: xgate-tool
+version: 0.1.0
+author: Vincent Chi <song374561@chivincent.net>
+about: The tools collection of xgate
+args:
+    - GraphicInfo:
+        help: Path of <GraphicInfo.bin>
+        required: true
+    - Graphic:
+        help: Path of <Graphic.bin>
+        required: true
+    - palette:
+        short: p
+        long: palette
+        help: Path of <Palet.cgp>
+    - verbose:
+        short: v
+        multiple: true
+        help: Sets the level of verbosity
