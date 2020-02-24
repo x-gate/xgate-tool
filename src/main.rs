@@ -24,7 +24,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn run(app: clap::ArgMatches) -> Result<(), Box<dyn Error>> {
+fn run(_app: clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
