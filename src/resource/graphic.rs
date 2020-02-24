@@ -18,7 +18,10 @@ impl GraphicResource {
 }
 
 impl PaletteResource {
-    pub fn load(path: &str) -> Result<Self, io::Error> {
-        Ok(PaletteResource(File::open(path)?))
+    pub fn load(path: Option<&str>) -> Result<Option<Self>, io::Error> {
+        match path {
+            Some(path) => return Ok(Some(PaletteResource(File::open(path)?))),
+            None => return Ok(None),
+        }
     }
 }

@@ -1,6 +1,7 @@
 use std::error::Error;
 use clap::{App, load_yaml};
 use log::{error};
+use xgate_tool::resource::graphic::{GraphicInfoResource, GraphicResource, PaletteResource};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let config = load_yaml!("../config/conf.yaml");
@@ -24,7 +25,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn run(_app: clap::ArgMatches) -> Result<(), Box<dyn Error>> {
+fn run(app: clap::ArgMatches) -> Result<(), Box<dyn Error>> {
+    let _resources = (
+        GraphicInfoResource::load(app.value_of("GraphicInfo").unwrap())?,
+        GraphicResource::load(app.value_of("Graphic").unwrap())?,
+        PaletteResource::load(app.value_of("Palette"))?,
+    );
+
     Ok(())
 }
 
