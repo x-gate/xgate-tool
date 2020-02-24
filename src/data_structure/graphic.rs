@@ -37,9 +37,9 @@ impl GraphicData {
         let mut decoded = vec![];
 
         while let Ok(first_byte) = cursor.read_u8() {
-            let data = if first_byte <= 0xa0 && first_byte >= 0x80 {
+            let data = if first_byte <= 0xaf && first_byte >= 0x80 {
                 Some(cursor.read_u8().unwrap())
-            } else if first_byte <= 0xe0 && first_byte >= 0xc0 {
+            } else if first_byte <= 0xef && first_byte >= 0xc0 {
                 Some(0)
             } else {
                 None
@@ -51,14 +51,14 @@ impl GraphicData {
                 },
                 0x10|0x90|0xd0 => {
                     Some(
-                        (first_byte as u32 & 0x0f) << 4 |
+                        (first_byte as u32 & 0x0f) << 8 |
                         (cursor.read_u8().unwrap() as u32)
                     )
                 },
                 0x20|0xa0|0xe0 => {
                     Some(
-                        (first_byte as u32 & 0x0f) << 8 |
-                        (cursor.read_u8().unwrap() as u32) << 4 |
+                        (first_byte as u32 & 0x0f) << 16 |
+                        (cursor.read_u8().unwrap() as u32) << 8 |
                         (cursor.read_u8().unwrap() as u32)
                     )
                 },
@@ -213,7 +213,69 @@ mod test {
     }
 
     #[test]
-    fn decode_graphic_data() {
-        todo!();
+    fn decode_graphic_data_0x0_() {
+        let graphic_data = GraphicData(vec![0x01, 0xaa]);
+
+        assert_eq!(vec![0xaa], graphic_data.decode().0);
+    }
+
+    #[test]
+    fn decode_graphic_data_0x1_() {
+        let mut bytes = vec![0x11, 0x01];
+        bytes.append(&mut vec![0xaa; 257]);
+        let graphic_data = GraphicData(bytes);
+
+        assert_eq!(vec![0xaa; 257], graphic_data.decode().0);
+    }
+
+    #[test]
+    fn decode_graphic_data_0x2_() {
+        let mut bytes = vec![0x21, 0x01, 0x01];
+        bytes.append(&mut vec![0xaa; 65793]);
+        let graphic_data = GraphicData(bytes);
+
+        assert_eq!(vec![0xaa; 65793], graphic_data.decode().0);
+    }
+
+    #[test]
+    fn decode_graphic_data_0x8_() {
+        let graphic_data = GraphicData(vec![0x82, 0xaa]);
+
+        assert_eq!(vec![0xaa; 2], graphic_data.decode().0);
+    }
+
+    #[test]
+    fn decode_graphic_data_0x9_() {
+        let graphic_data = GraphicData(vec![0x91, 0xaa, 0x01]);
+
+        assert_eq!(vec![0xaa; 257], graphic_data.decode().0);
+    }
+
+    #[test]
+    fn decode_graphic_data_0xa_() {
+        let graphic_data = GraphicData(vec![0xa1, 0xaa, 0x01, 0x01]);
+
+        assert_eq!(vec![0xaa; 65793], graphic_data.decode().0);
+    }
+
+    #[test]
+    fn decode_graphic_data_0xc_() {
+        let graphic_data = GraphicData(vec![0xc1]);
+
+        assert_eq!(vec![0x00], graphic_data.decode().0);
+    }
+
+    #[test]
+    fn decode_graphic_data_0xd_() {
+        let graphic_data = GraphicData(vec![0xd1, 0x01]);
+
+        assert_eq!(vec![0x00; 257], graphic_data.decode().0);
+    }
+
+    #[test]
+    fn decode_graphic_data_0xe_() {
+        let graphic_data = GraphicData(vec![0xe1, 0x01, 0x01]);
+
+        assert_eq!(vec![0x00; 65793], graphic_data.decode().0);
     }
 }
