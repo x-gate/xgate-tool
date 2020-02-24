@@ -1,6 +1,7 @@
 use std::error::Error;
 use clap::{App, load_yaml};
 use log::{error};
+use fern::colors::{Color, ColoredLevelConfig};
 use xgate_tool::resource::graphic::{GraphicInfoResource, GraphicResource, PaletteResource};
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -36,19 +37,21 @@ fn run(app: clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 }
 
 fn logger_init(level: log::LevelFilter) -> Result<(), fern::InitError> {
+    let color = ColoredLevelConfig::default().info(Color::Green);
+
     fern::Dispatch::new()
-    .format(|out, message, record| {
-        out.finish(format_args!(
-            "{}[{}][{}] {}",
-            chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"),
-            record.target(),
-            record.level(),
-            message
-        ))
-    })
-    .level(level)
-    .chain(std::io::stdout())
-    .apply()?;
+        .format(move |out, message, record| {
+            out.finish(format_args!(
+                "{}[{}][{}] {}",
+                chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"),
+                record.target(),
+                color.color(record.level()),
+                message
+            ))
+        })
+        .level(level)
+        .chain(std::io::stdout())
+        .apply()?;
 
     Ok(())
 }
