@@ -1,3 +1,6 @@
+use serde::{Serialize, Deserialize};
+
+#[derive(Serialize, Deserialize)]
 pub struct GraphicInfo {
     pub id: u32,
     pub address: u32,
@@ -13,6 +16,7 @@ pub struct GraphicInfo {
     pub map: u32,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct GraphicHeader {
     pub mark: [char; 2],
     pub version: u8,
@@ -34,6 +38,7 @@ pub struct GraphicV2 {
     pub palette_data: Vec<u8>
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct Pixel {
     pub r: u8,
     pub g: u8,
