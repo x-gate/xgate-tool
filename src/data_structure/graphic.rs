@@ -26,15 +26,17 @@ pub struct GraphicHeader {
     pub length: u32,
 }
 
+pub struct GraphicData(Vec<u8>);
+
 pub struct GraphicV1 {
     pub header: GraphicHeader,
-    pub data: Vec<u8>
+    pub data: GraphicData,
 }
 
 pub struct GraphicV2 {
     pub header: GraphicHeader,
     pub palette_length: u32,
-    pub data: Vec<u8>,
+    pub data: GraphicData,
     pub palette_data: Palette
 }
 
