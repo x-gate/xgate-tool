@@ -16,7 +16,7 @@ pub struct GraphicInfo {
     pub map: u32,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct GraphicHeader {
     pub mark: [char; 2],
     pub version: u8,
@@ -35,7 +35,7 @@ pub struct GraphicV2 {
     pub header: GraphicHeader,
     pub palette_length: u32,
     pub data: Vec<u8>,
-    pub palette_data: Vec<u8>
+    pub palette_data: Palette
 }
 
 #[derive(Serialize, Deserialize)]
@@ -71,5 +71,26 @@ mod test {
         };
 
         assert_eq!(graphic_info, expect);
+    }
+
+    #[test]
+    fn deserialize_graphic_header() {
+        let graphic_header = GraphicHeader {
+            mark: ['R', 'D'], version: 1, unknown: 16, width: 64, height: 47, length: 424,
+        };
+        let bytes = [0x52, 0x44, 0x01, 0x10, 0x40, 0x00, 0x00, 0x00, 0x2f, 0x00, 0x00, 0x00, 0xa8, 0x01, 0x00, 0x00];
+
+        assert_eq!(bytes, bincode::serialize(&graphic_header).unwrap().as_slice());
+    }
+    
+    #[test]
+    fn serialize_graphic_header() {
+        let bytes = [0x52, 0x44, 0x01, 0x10, 0x40, 0x00, 0x00, 0x00, 0x2f, 0x00, 0x00, 0x00, 0xa8, 0x01, 0x00, 0x00];
+        let graphic_header = bincode::deserialize::<GraphicHeader>(&bytes).unwrap();
+        let expect = GraphicHeader {
+            mark: ['R', 'D'], version: 1, unknown: 16, width: 64, height: 47, length: 424,
+        };
+
+        assert_eq!(graphic_header, expect);
     }
 }
