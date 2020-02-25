@@ -1,6 +1,6 @@
 use std::error::Error;
 use clap::{App, load_yaml};
-use log::{error};
+use log::{error, info};
 use xgate_tool::{
     logger_init,
     features::info::show_info,
@@ -32,14 +32,17 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn run(app: clap::ArgMatches) -> Result<(), Box<dyn Error>> {
+    info!("Start loading resources");
     let mut resources = (
         GraphicInfoResource::load(app.value_of("GraphicInfo").unwrap())?,
         GraphicResource::load(app.value_of("Graphic").unwrap())?,
         PaletteResource::load(app.value_of("Palette"))?,
     );
+    info!("Resources loaded");
 
     match app.subcommand() {
         ("info", Some(sub_args)) => {
+            info!("Parsing informations of <GraphicInfo.bin> and <Graphic.bin>");
             show_info(sub_args, &mut resources)?;
         },
         _ => {}
