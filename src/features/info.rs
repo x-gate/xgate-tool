@@ -8,9 +8,9 @@ use prettytable::{table, row, cell};
 pub fn show_info<T>(args: &clap::ArgMatches, resource: &mut (GraphicInfoResource, GraphicResource, T)) -> Result<(), Box<dyn std::error::Error>>{
     let result = ArgParse::parse(args)?;
     if result.id.is_some() {
-        print_table(vec![find_by_id(result.id.unwrap(),&mut resource.0,&mut resource.1)?]);
+        print_table(vec![find_by_id(result.id.unwrap(),&mut resource.0,&mut resource.1)?], false);
     } else if result.all {
-        print_table(find_all(&mut resource.0, &mut resource.1)?);
+        print_table(find_all(&mut resource.0, &mut resource.1)?, true);
     }
 
     Ok(())
@@ -35,17 +35,15 @@ fn find_all(graphic_info_resource: &mut GraphicInfoResource, graphic_resource: &
     Ok(ret)
 }
 
-fn print_table(data: Vec<(GraphicInfo, GraphicHeader)>) {
+fn print_table(data: Vec<(GraphicInfo, GraphicHeader)>, skip_equal: bool) {
     let mut table = table!(["id", "GraphicInfo.bin", "Graphic.bin"]);
 
-    for (graphic_info, graphic_header) in data {
-        let row = if graphic_info == graphic_header {
-                row![graphic_info.id, graphic_info, graphic_header]
-            } else {
-                row![bFr => graphic_info.id, graphic_info, graphic_header]
-            };
-        
-        table.add_row(row);
+    for (info, header) in data {
+        if info == header && !skip_equal {
+            table.add_row(row![info.id, info, header]);
+        } else if info != header {
+            table.add_row(row![bFr => info.id, info, header]);
+        }
     }
 
     table.printstd();
