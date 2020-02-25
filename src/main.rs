@@ -3,6 +3,7 @@ use clap::{App, load_yaml};
 use log::{error};
 use xgate_tool::{
     logger_init,
+    features::info::show_info,
     resource::graphic::{
         GraphicInfoResource, GraphicResource, PaletteResource
     }
@@ -31,7 +32,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn run(app: clap::ArgMatches) -> Result<(), Box<dyn Error>> {
-    let _resources = (
+    let resources = (
         GraphicInfoResource::load(app.value_of("GraphicInfo").unwrap())?,
         GraphicResource::load(app.value_of("Graphic").unwrap())?,
         PaletteResource::load(app.value_of("Palette"))?,
@@ -39,7 +40,7 @@ fn run(app: clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 
     match app.subcommand() {
         ("info", Some(sub_args)) => {
-            
+            show_info(sub_args, resources);
         },
         _ => {}
     }

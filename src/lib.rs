@@ -2,6 +2,7 @@ use fern::colors::{Color, ColoredLevelConfig};
 
 pub mod data_structure;
 pub mod resource;
+pub mod features;
 
 pub fn logger_init(level: log::LevelFilter) -> Result<(), fern::InitError> {
     let color = ColoredLevelConfig::default().info(Color::Green);
