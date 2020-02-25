@@ -1,4 +1,5 @@
 use std::io::{Cursor, Read};
+use std::fmt;
 use serde::{Serialize, Deserialize};
 use byteorder::ReadBytesExt;
 
@@ -18,6 +19,12 @@ pub struct GraphicInfo {
     pub map: u32,
 }
 
+impl fmt::Display for GraphicInfo {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "GraphicInfo {{ id: {}, address: {}, length: {}, width: {}, height: {} }}", self.id, self.address, self.length, self.width, self.height)
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct GraphicHeader {
     pub mark: [char; 2],
@@ -26,6 +33,12 @@ pub struct GraphicHeader {
     pub width: u32,
     pub height: u32,
     pub length: u32,
+}
+
+impl fmt::Display for GraphicHeader {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "GraphicHeader {{ mark: {:?}, version: {}, width: {}, height: {}, length: {} }}", self.mark, self.version, self.width, self.height, self.length)
+    }
 }
 
 #[derive(Debug, PartialEq)]
