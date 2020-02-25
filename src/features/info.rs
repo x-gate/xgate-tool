@@ -20,12 +20,12 @@ struct ArgParse {
 
 impl ArgParse {
     fn parse(args: &clap::ArgMatches) -> Result<Self, num::ParseIntError> {
-        if args.value_of("graphic_id").is_none() {
-            Ok(Self {id: None})
+        let id = if args.value_of("graphic_id").is_none() {
+            None
         } else {
-            Ok(Self {
-                id: Some(args.value_of("graphic_id").unwrap().parse::<u32>()?)
-            })
-        }
+            Some(args.value_of("graphic_id").unwrap().parse::<u32>()?)
+        };
+
+        Ok(Self{id})
     }
 }
