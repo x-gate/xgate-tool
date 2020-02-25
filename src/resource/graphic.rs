@@ -1,5 +1,7 @@
 use std::io;
+use std::io::Read;
 use std::fs::File;
+use crate::data_structure::graphic::GraphicInfo;
 
 pub struct GraphicInfoResource(File);
 pub struct GraphicResource(File);
@@ -8,6 +10,19 @@ pub struct PaletteResource(File);
 impl GraphicInfoResource {
     pub fn load(path: &str) -> Result<Self, io::Error> {
         Ok(GraphicInfoResource(File::open(path)?))
+    }
+}
+
+impl Iterator for GraphicInfoResource {
+    type Item = GraphicInfo;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let mut buf = [0; 40];
+
+        match self.0.read_exact(&mut buf) {
+            Ok(_) => return Some(bincode::deserialize::<GraphicInfo>(&buf).unwrap()),
+            Err(_) => return None,
+        }
     }
 }
 
