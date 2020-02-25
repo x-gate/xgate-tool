@@ -17,3 +17,10 @@ args:
         short: v
         multiple: true
         help: Sets the level of verbosity
+subcommands:
+    - info:
+        about: Show the information of <GraphicInfo.bin> and <Graphic.bin>
+        args:
+            - graphic_id:
+                long: id
+                help: The id number of Graphic, it defined in <GraphicInfo.bin>
