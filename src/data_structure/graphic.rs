@@ -1,4 +1,6 @@
 use std::io::{Cursor, Read};
+use std::fmt;
+use std::cmp::PartialEq;
 use serde::{Serialize, Deserialize};
 use byteorder::ReadBytesExt;
 
@@ -18,6 +20,20 @@ pub struct GraphicInfo {
     pub map: u32,
 }
 
+impl fmt::Display for GraphicInfo {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "GraphicInfo {{ id: {}, address: {}, length: {}, width: {}, height: {} }}", self.id, self.address, self.length, self.width, self.height)
+    }
+}
+
+impl PartialEq<GraphicHeader> for GraphicInfo {
+    fn eq(&self, other: &GraphicHeader) -> bool {
+        self.width == other.width && 
+        self.height == other.height &&
+        self.length == other.length
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct GraphicHeader {
     pub mark: [char; 2],
@@ -26,6 +42,20 @@ pub struct GraphicHeader {
     pub width: u32,
     pub height: u32,
     pub length: u32,
+}
+
+impl fmt::Display for GraphicHeader {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "GraphicHeader {{ mark: {:?}, version: {}, width: {}, height: {}, length: {} }}", self.mark, self.version, self.width, self.height, self.length)
+    }
+}
+
+impl PartialEq<GraphicInfo> for GraphicHeader {
+    fn eq(&self, other: &GraphicInfo) -> bool {
+        self.width == other.width && 
+        self.height == other.height &&
+        self.length == other.length
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -183,6 +213,24 @@ mod test {
         };
 
         assert_eq!(graphic_header, expect);
+    }
+
+    #[test]
+    fn cmp_graphic_info_and_header() {
+        let graphic_info = GraphicInfo {
+            id: 0, address: 0, length: 424, offset_x: -32, offset_y: -24, width: 64, height: 47, tile_east: 1, tile_south: 1, access: 1, unknown: [0, 0, 0, 0, 0], map:999
+        };
+        let graphic_header = GraphicHeader {
+            mark: ['R', 'D'], version: 1, unknown: 16, width: 64, height: 47, length: 424,
+        };
+        let other_header = GraphicHeader {
+            mark: ['R', 'D'], version: 1, unknown: 16, width: 128, height: 94, length: 848,
+        };
+
+        assert!(graphic_info == graphic_header);
+        assert!(graphic_header == graphic_info);
+        assert!(graphic_info != other_header);
+        assert!(other_header != graphic_info);
     }
 
     #[test]
