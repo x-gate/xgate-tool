@@ -1,7 +1,7 @@
 use std::io;
-use std::io::Read;
+use std::io::{Read, Seek, SeekFrom};
 use std::fs::File;
-use crate::data_structure::graphic::GraphicInfo;
+use crate::data_structure::graphic::{GraphicInfo, GraphicHeader};
 
 pub struct GraphicInfoResource(File);
 pub struct GraphicResource(File);
@@ -27,8 +27,16 @@ impl Iterator for GraphicInfoResource {
 }
 
 impl GraphicResource {
-    pub fn load(path: &str) -> Result<Self, io::Error> {
+    pub fn load(path: &str) -> io::Result<Self> {
         Ok(GraphicResource(File::open(path)?))
+    }
+
+    pub fn seek(&mut self, pos: SeekFrom) -> io::Result<u64> {
+        self.0.seek(pos)
+    }
+
+    pub fn read_header(&mut self) -> GraphicHeader {
+        bincode::deserialize_from(&self.0).unwrap()
     }
 }
 

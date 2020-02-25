@@ -32,7 +32,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn run(app: clap::ArgMatches) -> Result<(), Box<dyn Error>> {
-    let resources = (
+    let mut resources = (
         GraphicInfoResource::load(app.value_of("GraphicInfo").unwrap())?,
         GraphicResource::load(app.value_of("Graphic").unwrap())?,
         PaletteResource::load(app.value_of("Palette"))?,
@@ -40,7 +40,7 @@ fn run(app: clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 
     match app.subcommand() {
         ("info", Some(sub_args)) => {
-            show_info(sub_args, resources);
+            show_info(sub_args, &mut resources)?;
         },
         _ => {}
     }
