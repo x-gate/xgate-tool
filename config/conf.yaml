@@ -25,3 +25,6 @@ subcommands:
                 long: id
                 value_name: graphic_id
                 help: The id number of Graphic, it defined in <GraphicInfo.bin>
+            - all:
+                long: all
+                help: All of Graphics in this <GraphicInfo.bin>
