@@ -3,6 +3,7 @@ use std::fmt;
 use std::cmp::PartialEq;
 use serde::{Serialize, Deserialize};
 use byteorder::ReadBytesExt;
+use bmp::{Image, Pixel as BMPPixel};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct GraphicInfo {
@@ -113,11 +114,38 @@ impl GraphicData {
     }
 }
 
+pub trait Graphic {}
+
+#[derive(Debug)]
 pub struct GraphicV1 {
     pub header: GraphicHeader,
     pub data: GraphicData,
 }
 
+impl Graphic for GraphicV1 {}
+
+impl GraphicV1 {
+    pub fn new(binary: Vec<u8>) -> Result<Self, Box<bincode::ErrorKind>> {
+        let header = bincode::deserialize::<GraphicHeader>(&binary[..16])?;
+        let data = GraphicData(binary[16..].to_vec());
+
+        Ok(Self {header, data})
+    }
+
+    pub fn build_image(&self, info: &GraphicInfo, palette: &Palette) -> Result<Image, std::io::Error> {
+        let mut img = Image::new(info.width, info.height);
+
+        for (x, y) in img.coordinates() {
+            let data = self.data.0[(y * info.width + x) as usize];
+            let pixel = &palette.0[data as usize];
+            img.set_pixel(x, info.height - y - 1, BMPPixel::new(pixel.r, pixel.g, pixel.b));
+        }
+
+        Ok(img)
+    }
+}
+
+#[derive(Debug)]
 pub struct GraphicV2 {
     pub header: GraphicHeader,
     pub palette_length: u32,
@@ -125,11 +153,13 @@ pub struct GraphicV2 {
     pub palette_data: Palette
 }
 
+impl Graphic for GraphicV2 {}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Pixel {
-    pub r: u8,
-    pub g: u8,
     pub b: u8,
+    pub g: u8,
+    pub r: u8,
 }
 
 #[derive(Debug)]

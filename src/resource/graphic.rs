@@ -2,7 +2,7 @@ use std::io;
 use std::io::{Read, Seek, SeekFrom};
 use std::fs::File;
 use log::{info, warn};
-use crate::data_structure::graphic::{GraphicInfo, GraphicHeader};
+use crate::data_structure::graphic::{GraphicInfo, GraphicHeader, Palette};
 
 pub struct GraphicInfoResource(File);
 pub struct GraphicResource(File);
@@ -38,8 +38,15 @@ impl GraphicResource {
         self.0.seek(pos)
     }
 
-    pub fn read_header(&mut self) -> GraphicHeader {
-        bincode::deserialize_from(&self.0).unwrap()
+    pub fn read_header(&mut self) -> Result<GraphicHeader, Box<bincode::ErrorKind>> {
+        Ok(bincode::deserialize_from(&self.0)?)
+    }
+
+    pub fn read(&mut self, size: usize) -> Result<Vec<u8>, io::Error> {
+        let mut data = vec![0; size];
+        self.0.read_exact(&mut data)?;
+
+        Ok(data)
     }
 }
 
@@ -53,5 +60,12 @@ impl PaletteResource {
                 return Ok(None)
             },
         }
+    }
+
+    pub fn build(&mut self) -> Result<Palette, io::Error> {
+        let mut buf = vec![];
+        self.0.read_to_end(&mut buf)?;
+
+        Ok(Palette::new(&buf))
     }
 }

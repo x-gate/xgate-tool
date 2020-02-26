@@ -1,9 +1,8 @@
-use std::num;
-use std::io;
 use std::io::SeekFrom;
 use log::{info, debug};
 use crate::data_structure::graphic::{GraphicInfo, GraphicHeader};
 use crate::resource::graphic::{GraphicInfoResource, GraphicResource};
+use crate::features::ArgParse;
 use prettytable::{table, row, cell};
 
 pub fn show_info<T>(args: &clap::ArgMatches, resource: &mut (GraphicInfoResource, GraphicResource, T)) -> Result<(), Box<dyn std::error::Error>>{
@@ -21,25 +20,25 @@ pub fn show_info<T>(args: &clap::ArgMatches, resource: &mut (GraphicInfoResource
     Ok(())
 }
 
-fn find_by_id(id: u32, graphic_info_resource: &mut GraphicInfoResource, graphic_resource: &mut GraphicResource) -> Result<(GraphicInfo, GraphicHeader), io::Error>{
+fn find_by_id(id: u32, graphic_info_resource: &mut GraphicInfoResource, graphic_resource: &mut GraphicResource) -> Result<(GraphicInfo, GraphicHeader), Box<dyn std::error::Error>>{
     info!("Finding graphic by id = {}", id);
     let graphic_info = graphic_info_resource.find(|gi| gi.id == id).unwrap();
     debug!("Found graphic_info = {:?}", graphic_info);
     info!("Finding graphic_header at {}", graphic_info.address);
     graphic_resource.seek(SeekFrom::Start(graphic_info.address as u64))?;
-    let graphic_header = graphic_resource.read_header();
+    let graphic_header = graphic_resource.read_header()?;
     debug!("Found graphic_header = {:?}", graphic_header);
 
     Ok((graphic_info, graphic_header))
 }
 
-fn find_all(graphic_info_resource: &mut GraphicInfoResource, graphic_resource: &mut GraphicResource) -> Result<Vec<(GraphicInfo, GraphicHeader)>, io::Error> {
+fn find_all(graphic_info_resource: &mut GraphicInfoResource, graphic_resource: &mut GraphicResource) -> Result<Vec<(GraphicInfo, GraphicHeader)>, Box<dyn std::error::Error>> {
     let mut ret = vec![];
 
     info!("Collecting all of GraphicInfo and GraphicHeader");
     for graphic_info in graphic_info_resource {
         graphic_resource.seek(SeekFrom::Start(graphic_info.address as u64))?;
-        ret.push((graphic_info, graphic_resource.read_header()));
+        ret.push((graphic_info, graphic_resource.read_header()?));
     }
     info!("Collected all of GraphicInfo and GraphicHeader");
 
@@ -58,23 +57,4 @@ fn print_table(data: Vec<(GraphicInfo, GraphicHeader)>, skip_equal: bool) {
     }
 
     table.printstd();
-}
-
-#[derive(Debug)]
-struct ArgParse {
-    id: Option<u32>,
-    all: bool
-}
-
-impl ArgParse {
-    fn parse(args: &clap::ArgMatches) -> Result<Self, num::ParseIntError> {
-        let id = if args.value_of("graphic_id").is_none() {
-            None
-        } else {
-            Some(args.value_of("graphic_id").unwrap().parse::<u32>()?)
-        };
-        let all = args.is_present("all");
-
-        Ok(Self{id, all})
-    }
 }
