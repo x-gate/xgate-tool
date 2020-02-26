@@ -38,8 +38,15 @@ impl GraphicResource {
         self.0.seek(pos)
     }
 
-    pub fn read_header(&mut self) -> GraphicHeader {
-        bincode::deserialize_from(&self.0).unwrap()
+    pub fn read_header(&mut self) -> Result<GraphicHeader, Box<bincode::ErrorKind>> {
+        Ok(bincode::deserialize_from(&self.0)?)
+    }
+
+    pub fn read(&mut self, size: usize) -> Result<Vec<u8>, io::Error> {
+        let mut data = vec![0; size];
+        self.0.read_exact(&mut data)?;
+
+        Ok(data)
     }
 }
 

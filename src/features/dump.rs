@@ -1,5 +1,58 @@
+use crate::data_structure::graphic::{Graphic, GraphicInfo, GraphicV1};
+use crate::features::ArgParse;
 use crate::resource::graphic::{GraphicInfoResource, GraphicResource, PaletteResource};
+use log::{debug, info};
+use std::io;
+use std::io::SeekFrom;
 
-pub fn dump_graphics(args: &clap::ArgMatches, resources: &mut (GraphicInfoResource, GraphicResource, Option<PaletteResource>)) -> Result<(), Box<dyn std::error::Error>> {
+pub fn dump_graphics(
+    args: &clap::ArgMatches,
+    resources: &mut (
+        GraphicInfoResource,
+        GraphicResource,
+        Option<PaletteResource>,
+    ),
+) -> Result<(), Box<dyn std::error::Error>> {
+    info!("Parsing sub command arguments");
+    let result = ArgParse::parse(args)?;
+    info!("Parsed sub command arguments");
+    debug!("{:?}", result);
+
+    if result.id.is_some() {
+        let (graphic_info, graphic) = find_by_id(result.id.unwrap(), &mut resources.0, &mut resources.1)?;
+    } else if result.all {
+    }
+
     Ok(())
+}
+
+fn find_by_id(
+    id: u32,
+    graphic_info_resource: &mut GraphicInfoResource,
+    graphic_resource: &mut GraphicResource,
+) -> Result<(GraphicInfo, Box<dyn Graphic>), Box<dyn std::error::Error>> {
+    info!("Finding graphic by id = {}", id);
+    let graphic_info = graphic_info_resource.find(|gi| gi.id == id).unwrap();
+    debug!("Found graphic_info = {:?}", graphic_info);
+    info!("Finding graphic_header at {}", graphic_info.address);
+    graphic_resource.seek(SeekFrom::Start(graphic_info.address as u64))?;
+    let graphic_header = graphic_resource.read_header()?;
+    debug!("Found graphic_header = {:?}", graphic_header);
+
+    let graphic = match graphic_header.version {
+        0 | 1 => {
+            graphic_resource.seek(SeekFrom::Start(graphic_info.address as u64))?;
+            Box::new(GraphicV1::new(graphic_resource.read(graphic_info.length as usize)?)?)
+        }
+        2 | 3 => {
+            todo!();
+        }
+        _ => {
+            panic!("Unknown version of graphic.");
+        }
+    };
+
+    debug!("{:?}", graphic);
+
+    Ok((graphic_info, graphic))
 }

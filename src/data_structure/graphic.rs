@@ -113,9 +113,23 @@ impl GraphicData {
     }
 }
 
+pub trait Graphic {}
+
+#[derive(Debug)]
 pub struct GraphicV1 {
     pub header: GraphicHeader,
     pub data: GraphicData,
+}
+
+impl Graphic for GraphicV1 {}
+
+impl GraphicV1 {
+    pub fn new(binary: Vec<u8>) -> Result<Self, Box<bincode::ErrorKind>> {
+        let header = bincode::deserialize::<GraphicHeader>(&binary[..16])?;
+        let data = GraphicData(binary[16..].to_vec());
+
+        Ok(Self {header, data})
+    }
 }
 
 pub struct GraphicV2 {
@@ -124,6 +138,8 @@ pub struct GraphicV2 {
     pub data: GraphicData,
     pub palette_data: Palette
 }
+
+impl Graphic for GraphicV2 {}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Pixel {

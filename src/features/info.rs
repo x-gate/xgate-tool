@@ -21,25 +21,25 @@ pub fn show_info<T>(args: &clap::ArgMatches, resource: &mut (GraphicInfoResource
     Ok(())
 }
 
-fn find_by_id(id: u32, graphic_info_resource: &mut GraphicInfoResource, graphic_resource: &mut GraphicResource) -> Result<(GraphicInfo, GraphicHeader), io::Error>{
+fn find_by_id(id: u32, graphic_info_resource: &mut GraphicInfoResource, graphic_resource: &mut GraphicResource) -> Result<(GraphicInfo, GraphicHeader), Box<dyn std::error::Error>>{
     info!("Finding graphic by id = {}", id);
     let graphic_info = graphic_info_resource.find(|gi| gi.id == id).unwrap();
     debug!("Found graphic_info = {:?}", graphic_info);
     info!("Finding graphic_header at {}", graphic_info.address);
     graphic_resource.seek(SeekFrom::Start(graphic_info.address as u64))?;
-    let graphic_header = graphic_resource.read_header();
+    let graphic_header = graphic_resource.read_header()?;
     debug!("Found graphic_header = {:?}", graphic_header);
 
     Ok((graphic_info, graphic_header))
 }
 
-fn find_all(graphic_info_resource: &mut GraphicInfoResource, graphic_resource: &mut GraphicResource) -> Result<Vec<(GraphicInfo, GraphicHeader)>, io::Error> {
+fn find_all(graphic_info_resource: &mut GraphicInfoResource, graphic_resource: &mut GraphicResource) -> Result<Vec<(GraphicInfo, GraphicHeader)>, Box<dyn std::error::Error>> {
     let mut ret = vec![];
 
     info!("Collecting all of GraphicInfo and GraphicHeader");
     for graphic_info in graphic_info_resource {
         graphic_resource.seek(SeekFrom::Start(graphic_info.address as u64))?;
-        ret.push((graphic_info, graphic_resource.read_header()));
+        ret.push((graphic_info, graphic_resource.read_header()?));
     }
     info!("Collected all of GraphicInfo and GraphicHeader");
 
