@@ -1,6 +1,6 @@
 use std::error::Error;
 use clap::{App, load_yaml};
-use log::{error, info, debug};
+use log::{error, info};
 use xgate_tool::{
     logger_init,
     features::{

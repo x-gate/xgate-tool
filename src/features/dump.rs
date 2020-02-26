@@ -1,8 +1,7 @@
-use crate::data_structure::graphic::{Graphic, GraphicInfo, GraphicV1};
+use crate::data_structure::graphic::{GraphicInfo, GraphicV1};
 use crate::features::ArgParse;
 use crate::resource::graphic::{GraphicInfoResource, GraphicResource, PaletteResource};
 use log::{debug, info};
-use std::io;
 use std::io::SeekFrom;
 
 pub fn dump_graphics(
@@ -31,9 +30,9 @@ pub fn dump_graphics(
         info!("Decoded graphic data");
 
         info!("Building image");
-        (*graphic).build_image(&graphic_info, &palette)?;
+        (*graphic).build_image(&graphic_info, &palette)?
+            .save(format!("{}/{}.bmp", result.output.unwrap(), graphic_info.id))?;
         info!("Built image");
-
     } else if result.all {
     }
 

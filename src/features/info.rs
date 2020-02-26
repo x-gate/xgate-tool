@@ -1,4 +1,3 @@
-use std::io;
 use std::io::SeekFrom;
 use log::{info, debug};
 use crate::data_structure::graphic::{GraphicInfo, GraphicHeader};

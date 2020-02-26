@@ -15,3 +15,4 @@ fern = { version = "^0.5", features = ["colored"] }
 chrono = "^0.4"
 log = "^0.4"
 prettytable-rs = "^0.8"
+bmp = "^0.5"

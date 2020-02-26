@@ -1,7 +1,7 @@
 use std::io;
 use std::io::{Read, Seek, SeekFrom};
 use std::fs::File;
-use log::{info, warn, debug};
+use log::{info, warn};
 use crate::data_structure::graphic::{GraphicInfo, GraphicHeader, Palette};
 
 pub struct GraphicInfoResource(File);

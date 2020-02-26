@@ -39,3 +39,9 @@ subcommands:
             - all:
                 long: all
                 help: All of Graphics in this <GraphicInfo.bin>
+            - output:
+                short: o
+                long: output
+                value_name: output_path
+                default_value: "/dev/null"
+                help: The output path of result graphics.
