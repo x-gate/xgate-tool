@@ -28,3 +28,13 @@ subcommands:
             - all:
                 long: all
                 help: All of Graphics in this <GraphicInfo.bin>
+    - dump:
+        about: Dump the graphic.
+        args:
+            - graphic_id:
+                long: id
+                value_name: graphic_id
+                help: The id number of Graphic, it defined in <GraphicInfo.bin>
+            - all:
+                long: all
+                help: All of Graphics in this <GraphicInfo.bin>

@@ -1,9 +1,9 @@
-use std::num;
 use std::io;
 use std::io::SeekFrom;
 use log::{info, debug};
 use crate::data_structure::graphic::{GraphicInfo, GraphicHeader};
 use crate::resource::graphic::{GraphicInfoResource, GraphicResource};
+use crate::features::ArgParse;
 use prettytable::{table, row, cell};
 
 pub fn show_info<T>(args: &clap::ArgMatches, resource: &mut (GraphicInfoResource, GraphicResource, T)) -> Result<(), Box<dyn std::error::Error>>{
@@ -58,23 +58,4 @@ fn print_table(data: Vec<(GraphicInfo, GraphicHeader)>, skip_equal: bool) {
     }
 
     table.printstd();
-}
-
-#[derive(Debug)]
-struct ArgParse {
-    id: Option<u32>,
-    all: bool
-}
-
-impl ArgParse {
-    fn parse(args: &clap::ArgMatches) -> Result<Self, num::ParseIntError> {
-        let id = if args.value_of("graphic_id").is_none() {
-            None
-        } else {
-            Some(args.value_of("graphic_id").unwrap().parse::<u32>()?)
-        };
-        let all = args.is_present("all");
-
-        Ok(Self{id, all})
-    }
 }

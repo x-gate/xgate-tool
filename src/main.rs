@@ -3,7 +3,10 @@ use clap::{App, load_yaml};
 use log::{error, info};
 use xgate_tool::{
     logger_init,
-    features::info::show_info,
+    features::{
+        info::show_info,
+        dump::dump_graphics,
+    },
     resource::graphic::{
         GraphicInfoResource, GraphicResource, PaletteResource
     }
@@ -44,6 +47,10 @@ fn run(app: clap::ArgMatches) -> Result<(), Box<dyn Error>> {
         ("info", Some(sub_args)) => {
             info!("Parsing informations of <GraphicInfo.bin> and <Graphic.bin>");
             show_info(sub_args, &mut resources)?;
+        },
+        ("dump", Some(sub_args)) => {
+            info!("Dumping the graphic");
+            dump_graphics(sub_args, &mut resources)?;
         },
         _ => {}
     }
