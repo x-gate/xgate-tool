@@ -130,8 +130,13 @@ impl GraphicV1 {
 
         Ok(Self {header, data})
     }
+
+    pub fn build_image(&self, info: &GraphicInfo, palette: &Palette) -> Result<(), &str> {
+        Ok(())
+    }
 }
 
+#[derive(Debug)]
 pub struct GraphicV2 {
     pub header: GraphicHeader,
     pub palette_length: u32,

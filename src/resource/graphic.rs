@@ -1,8 +1,8 @@
 use std::io;
 use std::io::{Read, Seek, SeekFrom};
 use std::fs::File;
-use log::{info, warn};
-use crate::data_structure::graphic::{GraphicInfo, GraphicHeader};
+use log::{info, warn, debug};
+use crate::data_structure::graphic::{GraphicInfo, GraphicHeader, Palette};
 
 pub struct GraphicInfoResource(File);
 pub struct GraphicResource(File);
@@ -60,5 +60,12 @@ impl PaletteResource {
                 return Ok(None)
             },
         }
+    }
+
+    pub fn build(&mut self) -> Result<Palette, io::Error> {
+        let mut buf = vec![];
+        self.0.read_to_end(&mut buf)?;
+
+        Ok(Palette::new(&buf))
     }
 }

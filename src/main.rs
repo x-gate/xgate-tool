@@ -1,6 +1,6 @@
 use std::error::Error;
 use clap::{App, load_yaml};
-use log::{error, info};
+use log::{error, info, debug};
 use xgate_tool::{
     logger_init,
     features::{
@@ -39,7 +39,7 @@ fn run(app: clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     let mut resources = (
         GraphicInfoResource::load(app.value_of("GraphicInfo").unwrap())?,
         GraphicResource::load(app.value_of("Graphic").unwrap())?,
-        PaletteResource::load(app.value_of("Palette"))?,
+        PaletteResource::load(app.value_of("palette"))?,
     );
     info!("Resources loaded");
 

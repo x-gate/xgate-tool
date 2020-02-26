@@ -12,6 +12,7 @@ args:
     - palette:
         short: p
         long: palette
+        value_name: palette
         help: Path of <Palet.cgp>
     - verbose:
         short: v

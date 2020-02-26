@@ -19,7 +19,21 @@ pub fn dump_graphics(
     debug!("{:?}", result);
 
     if result.id.is_some() {
-        let (graphic_info, graphic) = find_by_id(result.id.unwrap(), &mut resources.0, &mut resources.1)?;
+        let (graphic_info, mut graphic) = find_by_id(result.id.unwrap(), &mut resources.0, &mut resources.1)?;
+        let palette = resources.2.as_mut().unwrap().build()?;
+        debug!("{:?}", *graphic);
+        debug!("{:?}", palette);
+
+        info!("Decoding graphic data");
+        if (*graphic).header.version & 1 == 1 {
+            (*graphic).data = (*graphic).data.decode();
+        }
+        info!("Decoded graphic data");
+
+        info!("Building image");
+        (*graphic).build_image(&graphic_info, &palette)?;
+        info!("Built image");
+
     } else if result.all {
     }
 
@@ -30,7 +44,7 @@ fn find_by_id(
     id: u32,
     graphic_info_resource: &mut GraphicInfoResource,
     graphic_resource: &mut GraphicResource,
-) -> Result<(GraphicInfo, Box<dyn Graphic>), Box<dyn std::error::Error>> {
+) -> Result<(GraphicInfo, Box<GraphicV1>), Box<dyn std::error::Error>> {
     info!("Finding graphic by id = {}", id);
     let graphic_info = graphic_info_resource.find(|gi| gi.id == id).unwrap();
     debug!("Found graphic_info = {:?}", graphic_info);
@@ -51,8 +65,6 @@ fn find_by_id(
             panic!("Unknown version of graphic.");
         }
     };
-
-    debug!("{:?}", graphic);
 
     Ok((graphic_info, graphic))
 }
