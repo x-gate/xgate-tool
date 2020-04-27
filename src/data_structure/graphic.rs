@@ -121,25 +121,23 @@ impl GraphicData {
     }
 }
 
-pub trait Graphic {}
-
 #[derive(Debug)]
-pub struct GraphicV1 {
+pub struct Graphic {
     pub header: GraphicHeader,
+    pub palette_length: Option<u32>,
     pub data: GraphicData,
+    pub palette: Option<Palette>,
 }
 
-impl Graphic for GraphicV1 {}
-
-impl GraphicV1 {
-    pub fn new(binary: Vec<u8>) -> Result<Self, Box<bincode::ErrorKind>> {
+impl Graphic {
+    pub fn new_v1(binary: Vec<u8>) -> Result<Self, Box<bincode::ErrorKind>> {
         let header = bincode::deserialize::<GraphicHeader>(&binary[..16])?;
         let data = GraphicData(binary[16..].to_vec());
 
-        Ok(Self {header, data})
+        Ok(Self {header, palette_length: None, data, palette: None})
     }
 
-    pub fn build_image(&self, info: &GraphicInfo, palette: &Palette) -> Result<Option<Image>, std::io::Error> {
+    pub fn build_v1_image(&self, info: &GraphicInfo, palette: &Palette) -> Result<Option<Image>, std::io::Error> {
         if self.data.0.len() == 0 {
             warn!("Empty Graphic Data (id: {})", info.id);
             return Ok(None);
@@ -156,16 +154,6 @@ impl GraphicV1 {
         Ok(Some(img))
     }
 }
-
-#[derive(Debug)]
-pub struct GraphicV2 {
-    pub header: GraphicHeader,
-    pub palette_length: u32,
-    pub data: GraphicData,
-    pub palette_data: Palette
-}
-
-impl Graphic for GraphicV2 {}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Pixel {
