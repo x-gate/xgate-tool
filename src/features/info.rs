@@ -49,8 +49,10 @@ fn print_table(data: Vec<(GraphicInfo, GraphicHeader)>, skip_equal: bool) {
     let mut table = table!(["id", "GraphicInfo.bin", "Graphic.bin"]);
 
     for (info, header) in data {
-        if info == header && !skip_equal {
+        if info == header && info.valid_perimeter() && !skip_equal {
             table.add_row(row![info.id, info, header]);
+        } else if !info.valid_perimeter() {
+            table.add_row(row![bFy => info.id, info, header]);
         } else if info != header {
             table.add_row(row![bFr => info.id, info, header]);
         }
