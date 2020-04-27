@@ -4,6 +4,7 @@ use std::cmp::PartialEq;
 use serde::{Serialize, Deserialize};
 use byteorder::ReadBytesExt;
 use bmp::{Image, Pixel as BMPPixel};
+use log::{warn};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct GraphicInfo {
@@ -32,6 +33,12 @@ impl PartialEq<GraphicHeader> for GraphicInfo {
         self.width == other.width && 
         self.height == other.height &&
         self.length == other.length
+    }
+}
+
+impl GraphicInfo {
+    pub fn valid_perimeter(&self) -> bool {
+        (self.width as u64) * (self.height as u64) < u32::max_value() as u64
     }
 }
 
@@ -93,7 +100,7 @@ impl GraphicData {
                         (cursor.read_u8().unwrap() as u32)
                     )
                 },
-                _ => None,
+                _ => panic!("Cannot count number of bytes."),
             };
 
             match first_byte & 0xf0 {
@@ -106,7 +113,7 @@ impl GraphicData {
                     let mut buffer = vec![data.unwrap(); num_bytes.unwrap() as usize];
                     decoded.append(&mut buffer);
                 },
-                _ => {},
+                _ => panic!("Unknown encode method."),
             }
         }
 
@@ -114,25 +121,28 @@ impl GraphicData {
     }
 }
 
-pub trait Graphic {}
-
 #[derive(Debug)]
-pub struct GraphicV1 {
+pub struct Graphic {
     pub header: GraphicHeader,
+    pub palette_length: Option<u32>,
     pub data: GraphicData,
+    pub palette: Option<Palette>,
 }
 
-impl Graphic for GraphicV1 {}
-
-impl GraphicV1 {
-    pub fn new(binary: Vec<u8>) -> Result<Self, Box<bincode::ErrorKind>> {
+impl Graphic {
+    pub fn new_v1(binary: Vec<u8>) -> Result<Self, Box<bincode::ErrorKind>> {
         let header = bincode::deserialize::<GraphicHeader>(&binary[..16])?;
         let data = GraphicData(binary[16..].to_vec());
 
-        Ok(Self {header, data})
+        Ok(Self {header, palette_length: None, data, palette: None})
     }
 
-    pub fn build_image(&self, info: &GraphicInfo, palette: &Palette) -> Result<Image, std::io::Error> {
+    pub fn build_v1_image(&self, info: &GraphicInfo, palette: &Palette) -> Result<Option<Image>, std::io::Error> {
+        if self.data.0.len() == 0 {
+            warn!("Empty Graphic Data (id: {})", info.id);
+            return Ok(None);
+        }
+
         let mut img = Image::new(info.width, info.height);
 
         for (x, y) in img.coordinates() {
@@ -141,19 +151,9 @@ impl GraphicV1 {
             img.set_pixel(x, info.height - y - 1, BMPPixel::new(pixel.r, pixel.g, pixel.b));
         }
 
-        Ok(img)
+        Ok(Some(img))
     }
 }
-
-#[derive(Debug)]
-pub struct GraphicV2 {
-    pub header: GraphicHeader,
-    pub palette_length: u32,
-    pub data: GraphicData,
-    pub palette_data: Palette
-}
-
-impl Graphic for GraphicV2 {}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Pixel {
