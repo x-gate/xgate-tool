@@ -4,6 +4,7 @@ use std::cmp::PartialEq;
 use serde::{Serialize, Deserialize};
 use byteorder::ReadBytesExt;
 use bmp::{Image, Pixel as BMPPixel};
+use log::{warn};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct GraphicInfo {
@@ -138,7 +139,12 @@ impl GraphicV1 {
         Ok(Self {header, data})
     }
 
-    pub fn build_image(&self, info: &GraphicInfo, palette: &Palette) -> Result<Image, std::io::Error> {
+    pub fn build_image(&self, info: &GraphicInfo, palette: &Palette) -> Result<Option<Image>, std::io::Error> {
+        if self.data.0.len() == 0 {
+            warn!("Empty Graphic Data (id: {})", info.id);
+            return Ok(None);
+        }
+
         let mut img = Image::new(info.width, info.height);
 
         for (x, y) in img.coordinates() {
@@ -147,7 +153,7 @@ impl GraphicV1 {
             img.set_pixel(x, info.height - y - 1, BMPPixel::new(pixel.r, pixel.g, pixel.b));
         }
 
-        Ok(img)
+        Ok(Some(img))
     }
 }
 

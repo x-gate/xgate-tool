@@ -31,13 +31,15 @@ pub fn dump_graphics(
         info!("Decoded graphic data");
 
         info!("Building image");
-        (*graphic)
-            .build_image(&graphic_info, &palette)?
-            .save(format!(
-                "{}/{}.bmp",
-                result.output.unwrap(),
-                graphic_info.id
-            ))?;
+        if let Some(image) = (*graphic).build_image(&graphic_info, &palette)? {
+            image.save(
+                format!(
+                    "{}/{}.bmp",
+                    result.output.unwrap(),
+                    graphic_info.id
+                )
+            )?;
+        }
         info!("Built image");
     } else if result.all {
         let palette = resources.2.as_mut().unwrap().build()?;
@@ -47,14 +49,15 @@ pub fn dump_graphics(
             if (*graphic).header.version & 1 == 1 {
                 (*graphic).data = (*graphic).data.decode();
             }
-
-            (*graphic)
-                .build_image(&info, &palette)?
-                .save(format!(
-                    "{}/{}.bmp",
-                    result.output.unwrap(),
-                    info.id
-                ))?;
+            if let Some(image) = (*graphic).build_image(&info, &palette)? {
+                image.save(
+                    format!(
+                        "{}/{}.bmp",
+                        result.output.unwrap(),
+                        info.id
+                    )
+                )?;
+            }
         }
     }
 
