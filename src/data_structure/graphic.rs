@@ -35,6 +35,12 @@ impl PartialEq<GraphicHeader> for GraphicInfo {
     }
 }
 
+impl GraphicInfo {
+    pub fn valid_perimeter(&self) -> bool {
+        (self.width as u64) * (self.height as u64) < u32::max_value() as u64
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct GraphicHeader {
     pub mark: [char; 2],
