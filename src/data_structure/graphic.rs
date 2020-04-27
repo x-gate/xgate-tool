@@ -93,7 +93,7 @@ impl GraphicData {
                         (cursor.read_u8().unwrap() as u32)
                     )
                 },
-                _ => None,
+                _ => panic!("Cannot count number of bytes."),
             };
 
             match first_byte & 0xf0 {
@@ -106,7 +106,7 @@ impl GraphicData {
                     let mut buffer = vec![data.unwrap(); num_bytes.unwrap() as usize];
                     decoded.append(&mut buffer);
                 },
-                _ => {},
+                _ => panic!("Unknown encode method."),
             }
         }
 
