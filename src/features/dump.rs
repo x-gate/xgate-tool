@@ -1,4 +1,4 @@
-use crate::data_structure::graphic::{GraphicInfo, GraphicHeader, GraphicV1};
+use crate::data_structure::graphic::{GraphicInfo, GraphicHeader, Graphic};
 use crate::features::ArgParse;
 use crate::resource::graphic::{GraphicInfoResource, GraphicResource, PaletteResource};
 use log::{debug, info, trace};
@@ -31,7 +31,7 @@ pub fn dump_graphics(
         info!("Decoded graphic data");
 
         info!("Building image");
-        if let Some(image) = graphic.build_image(&graphic_info, &palette)? {
+        if let Some(image) = graphic.build_v1_image(&graphic_info, &palette)? {
             image.save(
                 format!(
                     "{}/{}.bmp",
@@ -49,7 +49,7 @@ pub fn dump_graphics(
             if graphic.header.version & 1 == 1 {
                 graphic.data = graphic.data.decode();
             }
-            if let Some(image) = graphic.build_image(&info, &palette)? {
+            if let Some(image) = graphic.build_v1_image(&info, &palette)? {
                 image.save(
                     format!(
                         "{}/{}.bmp",
@@ -64,11 +64,11 @@ pub fn dump_graphics(
     Ok(())
 }
 
-fn get_graphic(info: &GraphicInfo, header: &GraphicHeader, graphic: &mut GraphicResource) -> Result<GraphicV1, Box<dyn std::error::Error>> {
+fn get_graphic(info: &GraphicInfo, header: &GraphicHeader, graphic: &mut GraphicResource) -> Result<Graphic, Box<dyn std::error::Error>> {
     let graphic = match header.version {
         0 | 1 => {
             graphic.seek(SeekFrom::Start(info.address as u64))?;
-            GraphicV1::new(
+            Graphic::new_v1(
                 graphic.read(info.length as usize)?,
             )?
         },
@@ -87,7 +87,7 @@ fn find_by_id(
     id: u32,
     graphic_info_resource: &mut GraphicInfoResource,
     graphic_resource: &mut GraphicResource,
-) -> Result<(GraphicInfo, GraphicV1), Box<dyn std::error::Error>> {
+) -> Result<(GraphicInfo, Graphic), Box<dyn std::error::Error>> {
     info!("Finding graphic by id = {}", id);
     let graphic_info = graphic_info_resource.find(|gi| gi.id == id).unwrap();
     debug!("Found graphic_info = {:?}", graphic_info);
@@ -104,7 +104,7 @@ fn find_by_id(
 fn find_all(
     graphic_info_resource: &mut GraphicInfoResource,
     graphic_resource: &mut GraphicResource,
-) -> Result<Vec<(GraphicInfo, GraphicV1)>, Box<dyn std::error::Error>> {
+) -> Result<Vec<(GraphicInfo, Graphic)>, Box<dyn std::error::Error>> {
     let mut ret = vec![];
 
     info!("Collecting all of GraphicInfo and GraphicHeader");
