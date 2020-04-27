@@ -6,7 +6,7 @@ The toolchain of xgate.
 
 ### Info
 
-- [ ] 強化辨識圖片 width 及 height 合法性
+- [x] 強化辨識圖片 width 及 height 合法性
 
 > Graphic_66.bin 編號 16681：寬度 4、高度 4294967281、大小 16，理論上高度推斷應該是 4
 > Graphic_PUK2_2.bin 編號 1948：寬度 4、高度 4294967270、大小 16，理論上高度推斷應該是 4
@@ -14,6 +14,7 @@ The toolchain of xgate.
 ### Dump
 
 - [ ] 可匯出圖片版本 > 2 （含有調色盤）
+- [x] 自動忽略空白的圖片資料
 - [ ] 嘗試自動修正不合法的 width 及 height
 - [ ] 修復 GraphicInfoV3（含）之後部份圖片色彩錯誤
     - 推論：可能是調色盤調用錯誤？
