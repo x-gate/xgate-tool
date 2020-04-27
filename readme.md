@@ -8,6 +8,7 @@ The toolchain of xgate.
 
 - [ ] 強化辨識圖片 width 及 height 合法性
 
+> Graphic_66.bin 編號 16681：寬度 4、高度 4294967281、大小 16，理論上高度推斷應該是 4
 > Graphic_PUK2_2.bin 編號 1948：寬度 4、高度 4294967270、大小 16，理論上高度推斷應該是 4
 
 ### Dump
